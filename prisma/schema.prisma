@@ -1,0 +1,53 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       String @id @default(cuid())
+  username String @unique
+  password String
+  name     String?
+}
+
+model Room {
+  id           String   @id @default(cuid())
+  number       String   @unique
+  priceMonthly Decimal
+  priceWeekly  Decimal
+  priceDaily   Decimal
+  status       String   @default("EMPTY") // EMPTY, BOOKED, OCCUPIED
+  
+  tenant       Tenant?
+}
+
+model Tenant {
+  id          String   @id @default(cuid())
+  name        String
+  contact     String
+  checkInDate DateTime
+  checkOutDate DateTime
+  
+  status      String   @default("ACTIVE") // ACTIVE, BOOKED
+  
+  roomId      String   @unique
+  room        Room     @relation(fields: [roomId], references: [id])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  date        DateTime @default(now())
+  amount      Decimal
+  type        String   // INCOME, EXPENSE
+  category    String   // RENT, ELECTRICITY, ETC
+  description String?
+}
+
+model PageContent {
+  key   String @id
+  value String // JSON string
+}
